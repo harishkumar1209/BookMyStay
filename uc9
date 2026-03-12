@@ -1,0 +1,61 @@
+import java.util.HashMap;
+
+class InvalidBookingException extends Exception {
+    InvalidBookingException(String message) {
+        super(message);
+    }
+}
+
+class RoomInventory {
+
+    HashMap<String, Integer> inventory = new HashMap<>();
+
+    RoomInventory() {
+        inventory.put("Single Room", 2);
+        inventory.put("Double Room", 1);
+        inventory.put("Suite Room", 1);
+    }
+
+    void bookRoom(String roomType) throws InvalidBookingException {
+
+        if (!inventory.containsKey(roomType)) {
+            throw new InvalidBookingException("Invalid Room Type: " + roomType);
+        }
+
+        int available = inventory.get(roomType);
+
+        if (available <= 0) {
+            throw new InvalidBookingException("No rooms available for " + roomType);
+        }
+
+        inventory.put(roomType, available - 1);
+        System.out.println("Room booked successfully: " + roomType);
+    }
+
+    void displayInventory() {
+        System.out.println("Current Inventory:");
+        for (String type : inventory.keySet()) {
+            System.out.println(type + " -> " + inventory.get(type));
+        }
+    }
+}
+
+public class UseCase9ErrorHandlingValidation {
+
+    public static void main(String[] args) {
+
+        System.out.println("Book My Stay App - Hotel Booking System v9.0\n");
+
+        RoomInventory inventory = new RoomInventory();
+
+        try {
+            inventory.bookRoom("Single Room");
+            inventory.bookRoom("Deluxe Room");
+        } 
+        catch (InvalidBookingException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        inventory.displayInventory();
+    }
+}

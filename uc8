@@ -1,0 +1,76 @@
+import java.util.*;
+
+class Reservation {
+    String reservationId;
+    String guestName;
+    String roomType;
+
+    Reservation(String reservationId, String guestName, String roomType) {
+        this.reservationId = reservationId;
+        this.guestName = guestName;
+        this.roomType = roomType;
+    }
+
+    void display() {
+        System.out.println("Reservation ID: " + reservationId + 
+                           " | Guest: " + guestName + 
+                           " | Room Type: " + roomType);
+    }
+}
+
+class BookingHistory {
+
+    List<Reservation> history = new ArrayList<>();
+
+    void addReservation(Reservation r) {
+        history.add(r);
+    }
+
+    List<Reservation> getHistory() {
+        return history;
+    }
+}
+
+class BookingReportService {
+
+    void displayAllBookings(List<Reservation> reservations) {
+        System.out.println("Booking History:");
+        for (Reservation r : reservations) {
+            r.display();
+        }
+    }
+
+    void generateSummary(List<Reservation> reservations) {
+        System.out.println("\nTotal Bookings: " + reservations.size());
+
+        HashMap<String, Integer> roomCount = new HashMap<>();
+
+        for (Reservation r : reservations) {
+            roomCount.put(r.roomType, roomCount.getOrDefault(r.roomType, 0) + 1);
+        }
+
+        System.out.println("Bookings by Room Type:");
+        for (String type : roomCount.keySet()) {
+            System.out.println(type + ": " + roomCount.get(type));
+        }
+    }
+}
+
+public class UseCase8BookingHistoryReport {
+
+    public static void main(String[] args) {
+
+        System.out.println("Book My Stay App - Hotel Booking System v8.0\n");
+
+        BookingHistory history = new BookingHistory();
+
+        history.addReservation(new Reservation("R101", "Harish", "Single Room"));
+        history.addReservation(new Reservation("R102", "Amit", "Double Room"));
+        history.addReservation(new Reservation("R103", "Rahul", "Suite Room"));
+
+        BookingReportService report = new BookingReportService();
+
+        report.displayAllBookings(history.getHistory());
+        report.generateSummary(history.getHistory());
+    }
+}

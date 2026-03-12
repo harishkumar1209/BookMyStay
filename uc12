@@ -1,0 +1,83 @@
+import java.io.*;
+import java.util.*;
+
+class Reservation implements Serializable {
+    String reservationId;
+    String guestName;
+    String roomType;
+
+    Reservation(String reservationId, String guestName, String roomType) {
+        this.reservationId = reservationId;
+        this.guestName = guestName;
+        this.roomType = roomType;
+    }
+}
+
+class SystemState implements Serializable {
+    HashMap<String, Integer> inventory;
+    List<Reservation> bookings;
+
+    SystemState(HashMap<String, Integer> inventory, List<Reservation> bookings) {
+        this.inventory = inventory;
+        this.bookings = bookings;
+    }
+}
+
+class PersistenceService {
+
+    static void save(SystemState state, String file) {
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+            out.writeObject(state);
+            out.close();
+            System.out.println("System state saved.");
+        } catch (Exception e) {
+            System.out.println("Error saving data.");
+        }
+    }
+
+    static SystemState load(String file) {
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
+            SystemState state = (SystemState) in.readObject();
+            in.close();
+            System.out.println("System state restored.");
+            return state;
+        } catch (Exception e) {
+            System.out.println("No previous data found. Starting fresh.");
+            return new SystemState(new HashMap<>(), new ArrayList<>());
+        }
+    }
+}
+
+public class UseCase12DataPersistenceRecovery {
+
+    public static void main(String[] args) {
+
+        System.out.println("Book My Stay App - Hotel Booking System v12.0\n");
+
+        String file = "hoteldata.dat";
+
+        SystemState state = PersistenceService.load(file);
+
+        if (state.inventory.isEmpty()) {
+            state.inventory.put("Single Room", 2);
+            state.inventory.put("Double Room", 1);
+            state.inventory.put("Suite Room", 1);
+        }
+
+        state.bookings.add(new Reservation("R201", "Harish", "Single Room"));
+
+        System.out.println("Current Inventory:");
+        for (String type : state.inventory.keySet()) {
+            System.out.println(type + " -> " + state.inventory.get(type));
+        }
+
+        System.out.println("\nBookings:");
+        for (Reservation r : state.bookings) {
+            System.out.println(r.reservationId + " | " + r.guestName + " | " + r.roomType);
+        }
+
+        PersistenceService.save(state, file);
+    }
+}

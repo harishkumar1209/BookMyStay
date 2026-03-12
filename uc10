@@ -1,0 +1,85 @@
+import java.util.*;
+
+class Reservation {
+    String reservationId;
+    String roomType;
+    String roomId;
+
+    Reservation(String reservationId, String roomType, String roomId) {
+        this.reservationId = reservationId;
+        this.roomType = roomType;
+        this.roomId = roomId;
+    }
+}
+
+class RoomInventory {
+
+    HashMap<String, Integer> inventory = new HashMap<>();
+
+    RoomInventory() {
+        inventory.put("Single Room", 1);
+        inventory.put("Double Room", 1);
+        inventory.put("Suite Room", 1);
+    }
+
+    void increase(String roomType) {
+        inventory.put(roomType, inventory.get(roomType) + 1);
+    }
+
+    void display() {
+        System.out.println("Current Inventory:");
+        for (String type : inventory.keySet()) {
+            System.out.println(type + " -> " + inventory.get(type));
+        }
+    }
+}
+
+class CancellationService {
+
+    HashMap<String, Reservation> confirmedBookings = new HashMap<>();
+    Stack<String> releasedRoomIds = new Stack<>();
+    RoomInventory inventory;
+
+    CancellationService(RoomInventory inventory) {
+        this.inventory = inventory;
+    }
+
+    void addBooking(Reservation r) {
+        confirmedBookings.put(r.reservationId, r);
+    }
+
+    void cancelBooking(String reservationId) {
+
+        if (!confirmedBookings.containsKey(reservationId)) {
+            System.out.println("Cancellation Failed: Reservation not found.");
+            return;
+        }
+
+        Reservation r = confirmedBookings.remove(reservationId);
+
+        releasedRoomIds.push(r.roomId);
+        inventory.increase(r.roomType);
+
+        System.out.println("Booking Cancelled: " + reservationId + " | Room Released: " + r.roomId);
+    }
+}
+
+public class UseCase10BookingCancellation {
+
+    public static void main(String[] args) {
+
+        System.out.println("Book My Stay App - Hotel Booking System v10.0\n");
+
+        RoomInventory inventory = new RoomInventory();
+        CancellationService service = new CancellationService(inventory);
+
+        service.addBooking(new Reservation("R101", "Single Room", "S1"));
+        service.addBooking(new Reservation("R102", "Double Room", "D1"));
+
+        service.cancelBooking("R101");
+        service.cancelBooking("R200");
+
+        System.out.println();
+        inventory.display();
+    }
+}
